@@ -127,7 +127,7 @@ class Card:
 class Deck:
     def __init__(self, cards: list[Card] | None = None):
         cards = cards or []
-        self._cards: deque = list(cards) or deque([Card(rank, suit) for rank in Card._RANKS for suit in Card._SUITS])
+        self._cards: deque = deque(list(cards)) or deque([Card(rank, suit) for rank in Card._RANKS for suit in Card._SUITS])
 
     @property
     def cards(self):
