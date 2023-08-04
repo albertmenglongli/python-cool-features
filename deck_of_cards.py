@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.10
 """
 This is an implementation of a deck of cards. It is a standard 52 card deck, with 4 suits, and 13 cards in each suit.
 The cards should be able to be shuffled, and drawn from the deck.
