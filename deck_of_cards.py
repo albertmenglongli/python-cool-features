@@ -31,15 +31,15 @@ from enum import Enum
 from typing import ClassVar, override, Self
 
 
-class SUITS(str, Enum):
+class SUIT(str, Enum):
     """
     ♢ ♣ ♡ ♠ Alternating colours
-    Diamonds, followed by clubs, hearts, and spades
+    Diamond, followed by club, heart, and spade
     """
-    DIAMONDS = '♢'
-    CLUBS = '♣'
-    HEARTS = '♡'
-    SPADES = '♠'
+    DIAMOND = '♢'
+    CLUB = '♣'
+    HEART = '♡'
+    SPADE = '♠'
 
     def __str__(self) -> str:
         return str.__str__(self)
@@ -49,7 +49,7 @@ class SUITS(str, Enum):
         """
         return: ['♢', '♣', '♡', '♠']
         """
-        return [str(suit) for suit in SUITS]
+        return [str(suit) for suit in SUIT]
 
 
 @dataclass(order=True, frozen=True)
@@ -57,10 +57,10 @@ class Card:
     sort_index: int = field(init=False, repr=False)
 
     rank: str | int = field(default_factory=lambda: random.choices(Card.ALL_RANKS)[0])
-    suit: str | SUITS = field(default_factory=lambda: random.choices(Card.ALL_SUITS)[0])
+    suit: str | SUIT = field(default_factory=lambda: random.choices(Card.ALL_SUITS)[0])
 
     ALL_RANKS: ClassVar[list[str]] = '2 3 4 5 6 7 8 9 10 J Q K A'.split()
-    ALL_SUITS: ClassVar[list[str]] = SUITS.get_all()
+    ALL_SUITS: ClassVar[list[str]] = SUIT.get_all()
 
     def __post_init__(self):
         # check suit is valid or not
@@ -68,7 +68,7 @@ class Card:
             case str():
                 if self.suit not in self.ALL_SUITS:
                     raise ValueError(f'Invalid suit: {self.suit}')
-            case SUITS():
+            case SUIT():
                 # convert enum to str
                 setattr(self, 'suit', str(self.suit))
             case _:
@@ -219,7 +219,6 @@ class Deck:
         return item in self._cards
 
     def __getitem__(self, item: int | slice) -> Card | Cards | None:
-        res = None
         match item:
             case int():
                 res = self._cards[item]
@@ -277,32 +276,37 @@ def strip_shape(shape_content: str) -> str:
 
 def test_cards():
     # test attributes
-    assert Card('2', '♠') == Card(2, '♠') == Card(2, SUITS.SPADES)
-    assert Card('1', '♠') == Card(1, '♠') == Card(1, SUITS.SPADES) == Card('A', '♠')
+    assert Card('2', '♠') == Card(2, '♠') == Card(2, SUIT.SPADE)
+    assert Card('1', '♠') == Card(1, '♠') == Card(1, SUIT.SPADE) == Card('A', '♠')
     assert (card := Card('A', '♠')) and card.rank == 'A' and card.suit == '♠'
-    assert (card := Card('A', SUITS.SPADES)) and card.rank == 'A' and card.suit == '♠'
+    assert (card := Card('A', SUIT.SPADE)) and card.rank == 'A' and card.suit == '♠'
 
     # test comparing Cards in order
     assert Card('A', '♠') > Card('A', '♡') > Card('K', '♠')
     cards: list[Card] = sorted([Card('A', '♠'), Card('K', '♠'), Card('A', '♡')])
     assert cards == [Card('K', '♠'), Card('A', '♡'), Card('A', '♠')]
     all_aces = [Card('A', suit) for suit in Card.ALL_SUITS]
+
     # random a suit value if not specified
     assert Card('A') in all_aces
+
     # test string representation
     assert str(Card('A', '♠')) == "Card('A', '♠')"
     assert str(cards) == ("[Card(rank='K', suit='♠'),"
                           " Card(rank='A', suit='♡'),"
                           " Card(rank='A', suit='♠')]")
+
     # test equality
     assert Card('A', '♠') == Card(1, '♠')
     assert Card('2', '♢') == Card(2, '♢')
     assert Card('K', '♠') == Card(13, '♠')
+
     # test hash
     card_map: dict[Card, str] = {Card('A', '♠'): "Biggest card"}
     card_map |= {Card('2', '♢'): "Smallest card"}  # union update for dict
     assert card_map[Card('A', '♠')] == "Biggest card"
     assert card_map[Card('2', '♢')] == "Smallest card"
+
     # test shape
     expected_shape = strip_shape("""
         ┌─────────┐
@@ -392,10 +396,10 @@ def test_deck():
     deck.shuffle()
 
     num_cards_in_hand = 5
-    hand_cards = deck.make_hand(num_cards=num_cards_in_hand)
+    hand = deck.make_hand(num_cards=num_cards_in_hand)
 
     assert len(deck) == 52 - num_cards_in_hand
-    assert hand_cards[0] not in deck
+    assert hand[0] not in deck
 
 
 if __name__ == '__main__':
@@ -411,5 +415,5 @@ if __name__ == '__main__':
     deck.shuffle()
     print(deck.gen_shape())
 
-    hand_cards: list[Card] = deck.make_hand(num_cards=5)
-    print(FrenchDeck(cards=hand_cards).sort().gen_shape(space_width=0, show_all=True))
+    hand: list[Card] = deck.make_hand(num_cards=5)
+    print(FrenchDeck(cards=hand).sort().gen_shape(space_width=0, show_all=True))
