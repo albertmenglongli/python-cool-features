@@ -416,4 +416,4 @@ if __name__ == '__main__':
     print(deck.gen_shape())
 
     hand: list[Card] = deck.make_hand(num_cards=5)
-    print(FrenchDeck(cards=hand).sort().gen_shape(space_width=0, show_all=True))
+    print(Deck(cards=hand).sort().gen_shape(space_width=0, show_all=True))
